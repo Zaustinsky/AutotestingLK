@@ -69,5 +69,6 @@ public class Test {
         issue.parseRowsIssue();
         issue.parseRowsIssueAttachments();
         issue.driver.quit();
+        issue.driver.quit();
     }
 }
