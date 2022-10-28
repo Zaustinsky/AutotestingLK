@@ -10,21 +10,17 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.io.IOException;
-
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.Date;
 import java.util.List;
 
-public class Issue {
-
+public class Order {
     WebDriver driver;
     public final static String delimiter = "-----------------------------------";
-    public static String LOGIN_AGRA = "BANK_BAPBBY2X";
-    public static String PASSWORD_AGRA = "123456";
+    public static String LOGIN_NBRB = "Firsov_a";
+    public static String PASSWORD_NBRB = "123456";
 
     public void createGeckoDriver() {
         System.setProperty("webdriver.gecko.driver", "C:\\SeleniumGecko\\geckodriver.exe");
@@ -48,9 +44,9 @@ public class Issue {
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
     }
 
-    public void issue() { //вкладка "Заявки"
-        driver.findElement(By.xpath("//ul[@class='nav']/li[2]")).click();
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(30));
+    public void order() { //вкладка "Наряды"
+        driver.findElement(By.xpath("//a[@class='nav-link nav-dropdown-toggle']")).click();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
     }
 
     public void getSummRows() {
@@ -66,7 +62,7 @@ public class Issue {
         System.out.println("Количество созданных заявок: " + countDown);
         //отбор нужного количества строк с одинаковым значением атрибута class + получение их общей суммы
         System.out.println(delimiter);
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
     }
 
     public void mouseOverAndClick() { //наведение курсора мыши на п.м. создания заявки "+"
@@ -75,10 +71,19 @@ public class Issue {
         builder.moveToElement(motion);
         Action mouseoverAndClick = builder.build();
         mouseoverAndClick.perform();
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(15));
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
         //waitForOne.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='addSectionItem ']")));
 
         driver.findElement(By.xpath("//div[@class='wrapper-add']//span")).click();
+    }
+
+    public void insertNumberDoc() { //ввод номера документа за день
+        driver.findElement(By.xpath("//*[text() = 'Порядковый номер документа за день']/ancestor::div[@class='itemGroup']//input[@id='number']")).sendKeys("1");
+    }
+
+    public void insertNumberMt_file() { //вод номера МТ-файла
+        driver.findElement(By.xpath("//*[text() = 'Связь с МТ-файлом']/ancestor::div[@class='itemGroup ']//input[@id='reference']")).sendKeys("1");
+
     }
 
     public void getDate() { //получение серверной даты
@@ -89,10 +94,11 @@ public class Issue {
     }
 
     public void insertDate() { //выбор даты
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
         Date date = new Date();
         String output = dateFormat.format(date);
-        driver.findElement(By.xpath("//input[@id='actionDate']")).sendKeys(output);
+        //new WebDriverWait(driver, Duration.ofSeconds(20)).until(ExpectedConditions.invisibilityOf(driver.findElement(By.xpath("//div[@class='wrapper__preloader']"))));
+        driver.findElement(By.xpath("//input[@id='actionDate']")).click();
     }
 
     public void choiceOfSelfDevice(String xpath) { //выбор конкретного УС из выпадающего списка
@@ -155,3 +161,4 @@ public class Issue {
         }
     }
 }
+
