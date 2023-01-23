@@ -1,15 +1,15 @@
 package org.lwo.selenium;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
+import org.openqa.selenium.*;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.interactions.Action;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.io.File;
 import java.io.IOException;
 
 import java.io.IOException;
@@ -21,7 +21,9 @@ import java.util.List;
 
 public class Issue {
 
-    WebDriver driver;
+    static WebDriver driver;
+    public static WebDriverWait wait;
+
     public final static String delimiter = "-----------------------------------";
     public static String LOGIN_AGRA = "BANK_BAPBBY2X";
     public static String PASSWORD_AGRA = "123456";
@@ -30,6 +32,7 @@ public class Issue {
         System.setProperty("webdriver.gecko.driver", "C:\\SeleniumGecko\\geckodriver.exe");
         driver = new FirefoxDriver();
         new WebDriverWait(driver, Duration.ofSeconds(20));
+        wait = new WebDriverWait(driver, Duration.ofSeconds(20));
     }
 
     public void goLink(String link) { //переход по ссылке на ресурс
@@ -66,20 +69,29 @@ public class Issue {
         System.out.println("Количество созданных заявок: " + countDown);
         //отбор нужного количества строк с одинаковым значением атрибута class + получение их общей суммы
         System.out.println(delimiter);
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
+//        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
     }
 
     public void mouseOverAndClick() { //наведение курсора мыши на п.м. создания заявки "+"
-        WebElement motion = driver.findElement(By.xpath("//div[@class='addSectionItem ']"));
-        Actions builder = new Actions(driver);
-        builder.moveToElement(motion);
-        Action mouseoverAndClick = builder.build();
-        mouseoverAndClick.perform();
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(15));
+//        WebElement motion = driver.findElement(By.xpath("//div[@class='addSectionItem ']"));
+//        Actions builder = new Actions(driver);
+//        new WebDriverWait(driver, Duration.ofSeconds(20)).until(ExpectedConditions.invisibilityOf(driver.findElement(By.xpath("//div[@class='wrapper__preloader']"))));
+        By plusLocator = By.cssSelector("div > svg[class='svg-add']"); // CSS локатор для кнопки "+"
+        wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(plusLocator)); // явное ожидание, пока кнопка "+" появится в DOM-модели
+        driver.findElement(plusLocator).click();
+//        builder.moveToElement(motion);
+//        Action mouseoverAndClick = builder.build();
+//        mouseoverAndClick.perform();
+        //driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(15));
+
+
+
         //waitForOne.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='addSectionItem ']")));
 
-        driver.findElement(By.xpath("//div[@class='wrapper-add']//span")).click();
+//        driver.findElement(By.xpath("//div[@class='wrapper-add']//span")).click();
     }
+
+
 
     public void getDate() { //получение серверной даты
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -95,12 +107,21 @@ public class Issue {
         driver.findElement(By.xpath("//input[@id='actionDate']")).sendKeys(output);
     }
 
-    public void choiceOfSelfDevice(String xpath) { //выбор конкретного УС из выпадающего списка
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
-        //new WebDriverWait(driver, Duration.ofSeconds(20)).until(ExpectedConditions.invisibilityOf(driver.findElement(By.xpath("//div[@class='wrapper__preloader']"))));
+    public static void choiceOfSelfDevice(String xpath) { //выбор конкретного УС из выпадающего списка
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+//        By invisibleElement = By.xpath("//div[@class='wrapper__preloader']");
+//        wait.until(ExpectedConditions.invisibilityOfElementLocated(invisibleElement)); // ожидание, пока станет невидимым элемент 'wrapper__preloader'
+        new WebDriverWait(driver, Duration.ofSeconds(20)).until(ExpectedConditions.invisibilityOf(driver.findElement(By.xpath("//div[@class='wrapper__preloader']"))));
         new WebDriverWait(driver, Duration.ofSeconds(20)).until(ExpectedConditions.elementToBeClickable(By.xpath("//div[@class='css-10nd86i basic-single customSelect']//div[@class='css-1rtrksz select__value-container select__value-container--has-value']"))).click();
         WebElement device = driver.findElement(By.xpath(xpath));
         ((JavascriptExecutor) driver).executeScript("arguments[0].click()", device); //JS скрипт клик элемента
+    }
+
+    public void clickButton(){ // Подписание заявки
+        WebElement button = driver.findElement(By.xpath("//button[@class='addNotif']"));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", button); //скрол вниз на невидимый элемент
+        button.click();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
     }
 
     public void scribeIssue() throws Exception { // подписание заявки
@@ -153,5 +174,11 @@ public class Issue {
             }
             System.out.println(Issue.delimiter);
         }
+    }
+    @After
+    public void tearDown() throws IOException { // метод реализации скриншота после выполнения теста
+        File sourceFile = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
+        FileUtils.copyFile(sourceFile, new File("d:\\Screenshot for autotesting\\screenshot.png")); // копирование файла скрина в конкретную папку
+        driver.quit();
     }
 }

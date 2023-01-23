@@ -1,15 +1,16 @@
 package org.lwo.selenium;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
+import org.openqa.selenium.*;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.interactions.Action;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
@@ -18,6 +19,8 @@ import java.util.List;
 
 public class Order {
     WebDriver driver;
+    public WebDriverWait wait;
+
     public final static String delimiter = "-----------------------------------";
     public static String LOGIN_NBRB = "Firsov_a";
     public static String PASSWORD_NBRB = "123456";
@@ -26,6 +29,7 @@ public class Order {
         System.setProperty("webdriver.gecko.driver", "C:\\SeleniumGecko\\geckodriver.exe");
         driver = new FirefoxDriver();
         new WebDriverWait(driver, Duration.ofSeconds(20));
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
     public void goLink(String link) { //переход по ссылке на ресурс
@@ -62,16 +66,20 @@ public class Order {
         System.out.println("Количество созданных заявок: " + countDown);
         //отбор нужного количества строк с одинаковым значением атрибута class + получение их общей суммы
         System.out.println(delimiter);
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        //driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
     }
 
     public void mouseOverAndClick() { //наведение курсора мыши на п.м. создания заявки "+"
-        WebElement motion = driver.findElement(By.xpath("//div[@class='addSectionItem ']"));
+        By plusLocator = By.cssSelector("div > svg[class='svg-add']"); // CSS локатор для кнопки "+"
+        wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(plusLocator)); // явное ожидание, пока кнопка "+" появится в DOM-модели
+        //driver.findElement(plusLocator).click();
+
+        WebElement motion = driver.findElement(By.cssSelector("div > svg[class='svg-add']"));
         Actions builder = new Actions(driver);
         builder.moveToElement(motion);
         Action mouseoverAndClick = builder.build();
         mouseoverAndClick.perform();
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        //driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
         //waitForOne.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='addSectionItem ']")));
 
         driver.findElement(By.xpath("//div[@class='wrapper-add']//span")).click();
@@ -79,11 +87,12 @@ public class Order {
 
     public void insertNumberDoc() { //ввод номера документа за день
         driver.findElement(By.xpath("//*[text() = 'Порядковый номер документа за день']/ancestor::div[@class='itemGroup']//input[@id='number']")).sendKeys("1");
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
     }
 
     public void insertNumberMt_file() { //вод номера МТ-файла
         driver.findElement(By.xpath("//*[text() = 'Связь с МТ-файлом']/ancestor::div[@class='itemGroup ']//input[@id='reference']")).sendKeys("1");
-
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
     }
 
     public void getDate() { //получение серверной даты
@@ -94,25 +103,64 @@ public class Order {
     }
 
     public void insertDate() { //выбор даты
-        DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date date = new Date();
         String output = dateFormat.format(date);
-        //new WebDriverWait(driver, Duration.ofSeconds(20)).until(ExpectedConditions.invisibilityOf(driver.findElement(By.xpath("//div[@class='wrapper__preloader']"))));
+        new WebDriverWait(driver, Duration.ofSeconds(20)).until(ExpectedConditions.invisibilityOf(driver.findElement(By.xpath("//div[@class='wrapper__preloader']"))));
         driver.findElement(By.xpath("//input[@id='actionDate']")).click();
+        driver.findElement(By.xpath("//input[@id='actionDate']")).sendKeys(output);
     }
 
-    public void choiceOfSelfDevice(String xpath) { //выбор конкретного УС из выпадающего списка
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
+    public void senderDestination(String xpath) { //выбор отправителя из выпадающего списка
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
         //new WebDriverWait(driver, Duration.ofSeconds(20)).until(ExpectedConditions.invisibilityOf(driver.findElement(By.xpath("//div[@class='wrapper__preloader']"))));
         new WebDriverWait(driver, Duration.ofSeconds(20)).until(ExpectedConditions.elementToBeClickable(By.xpath("//div[@class='css-10nd86i basic-single customSelect']//div[@class='css-1rtrksz select__value-container select__value-container--has-value']"))).click();
         WebElement device = driver.findElement(By.xpath(xpath));
         ((JavascriptExecutor) driver).executeScript("arguments[0].click()", device); //JS скрипт клик элемента
     }
 
+    public void recipientDestination(String xpath){ // выбор получателя из списка
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+        new WebDriverWait(driver, Duration.ofSeconds(20)).until(ExpectedConditions.elementToBeClickable(By.xpath("//div[@class='group-wrapper wrapper_separator'][2]//div[@class='css-1rtrksz select__value-container select__value-container--has-value']"))).click();
+        WebElement device = driver.findElement(By.xpath(xpath));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click()", device); //JS скрипт клик элемента
+    }
+
+    public void fieldNameUser(String name){
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+        By nameLocator = By.cssSelector("#person");
+        new WebDriverWait(driver, Duration.ofSeconds(20)).until(ExpectedConditions.elementToBeClickable(nameLocator)).sendKeys(name);
+    }
+
+    public void jobTitle(String name){
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+        By nameLocator = By.cssSelector("#personPost");
+        new WebDriverWait(driver, Duration.ofSeconds(20)).until(ExpectedConditions.elementToBeClickable(nameLocator)).sendKeys(name);
+    }
+
+    public void addAttachment() throws InterruptedException {
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+        //By nameLocator = By.xpath("//svg[class='svg-add-2']");
+        WebElement element = driver.findElement(By.cssSelector("svg[class='svg-add-2']"));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element); // скрол на кнопку "Добавить"
+        Thread.sleep(500);
+        element.click();
+        driver.findElement(By.cssSelector("#react-select-7-input")).click(); //локатор к полю "год";
+        driver.findElement(By.xpath("//*[text()='2009']")).click(); //ввод года выпуска валюты
+        driver.findElement(By.xpath("//*[text()='Номинал валюты']/ancestor::div[@class='itemGroup']")).click(); //xpath к полю "номинал валюты";
+        driver.findElement(By.xpath("//*[text()='100']")).click(); //ввод номинала валюты
+        driver.findElement(By.xpath("//input[@id='packAmount']")).sendKeys("1000");
+        //driver.findElement(By.cssSelector("#sum")).sendKeys(); //поле "сумма"
+        driver.findElement(By.xpath("//*[text()='Добавить вложение']")).click(); //кнопка "Добавить вложение";
+        driver.findElement(By.xpath("//*[text()='Создать наряд']")).click(); //кнопка "Добавить наряд"
+    }
+
     public void scribeIssue() throws Exception { // подписание заявки
         driver.findElement(By.xpath("//div[@id='root']/div/header/div[3]/div[2]/div/div/div[3]/button")).click(); //очистить
         driver.findElement(By.xpath("//div[@class='wrapper-drop']")).click(); //клик по менюшке для вызова меню подписания
         driver.findElement(By.xpath("//a[@class='itemActionDrop'][3]/span")).click(); //п.м. "Подписать"
+        driver.findElement(By.cssSelector("#react-select-10-input")).click(); //клик по меню для выбора должности
+        driver.findElement(By.xpath("//*[text()='Второй заместитель начальника главного управления наличного денежного обращения']")).click(); //выбор должности
         driver.findElement(By.xpath("//div[@id='root']/div/div[2]/div/div/div/div[2]/div[4]/button[2]")).click(); //кнопка "Подписать" на форме подписания
         driver.findElement(By.xpath("(//input[@name='signPassword'])[2]")).sendKeys("11111111"); //ввод пароля
         driver.findElement(By.xpath("//*[text() = 'Подписать']")).click(); // п.м. "Подписать"
@@ -159,6 +207,12 @@ public class Order {
             }
             System.out.println(Issue.delimiter);
         }
+    }
+    @After
+    public void tearDown() throws IOException { // метод реализации скриншота после выполнения теста
+        File sourceFile = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
+        FileUtils.copyFile(sourceFile, new File("d:\\Screenshot for autotesting\\screenshot.png")); // копирование файла скрина в конкретную папку
+        driver.quit();
     }
 }
 

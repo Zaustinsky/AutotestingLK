@@ -16,7 +16,7 @@ public class Order01_Kassa extends Order{
         Actions actions = new Actions(driver); // скрол на элемент
         actions.moveToElement(firstbutton).click().perform();
         ((JavascriptExecutor) driver).executeScript("arguments[0].click()", firstbutton); //JS скрипт клик элемента
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
     }
 
 

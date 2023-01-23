@@ -9,7 +9,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 
-public class Issue3003 extends Issue {
+public class Issue3012VyvozFromSP extends Issue {
     //вложения специальных методов, применимых только к данной заявке; общие помещены в класс Issue
 
     public <var> void issueExport() {

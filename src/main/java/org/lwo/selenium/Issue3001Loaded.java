@@ -1,40 +1,24 @@
 package org.lwo.selenium;
 
-import com.sun.org.slf4j.internal.LoggerFactory;
-import jdk.nashorn.internal.runtime.Context;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.Duration;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.interactions.Action;
 import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import org.slf4j.Logger;
-
-import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
 
 
-public class Issue3001 extends Issue{
+public class Issue3001Loaded extends Issue{
 
 //вложения специальных методов, применимых только к данной заявке; общие помещены в класс Issue
 
-    public <var> void createIssueATM(){
+    public <var> void tabATM(){
         WebElement firstbutton= driver.findElement(By.xpath("//ul[@class='nav']/li[2]//*[text() ='Устройство самообслуживания']")); //вкладка "Устройство самообслуживания"
         Actions actions = new Actions(driver); // скрол на элемент
         actions.moveToElement(firstbutton).click().perform();
         ((JavascriptExecutor)driver).executeScript("arguments[0].click()", firstbutton); //JS скрипт клик элемента
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+
     }
 
     public void mouseOverToCassette(){ //заполнение кассет ДН

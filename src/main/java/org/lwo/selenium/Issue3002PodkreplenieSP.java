@@ -2,24 +2,12 @@ package org.lwo.selenium;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.interactions.Action;
 import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import lombok.extern.slf4j.Slf4j;
 
-import java.sql.Driver;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.Duration;
-import java.util.Date;
-import java.util.List;
-import java.util.NoSuchElementException;
 
-public class Issue3002 extends Issue {
+public class Issue3002PodkreplenieSP extends Issue {
 
 //вложения специальных методов, применимых только к данной заявке; общие помещены в класс Issue
 
